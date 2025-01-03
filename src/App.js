@@ -1,35 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// src/App.js
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ItemList from './components/ItemList';
+import ItemDetails from './components/ItemDetails';
+import Cart from './components/Cart';
+import Checkout from './components/Checkout';
 
 function App() {
-  const [items, setItems] = useState([]);
-
-  useEffect(() => {
-    axios.get('https://localhost:5079/api/items')
-      .then(response => {
-        // If your API returns { items: [...], categories: [...], ... }
-        console.log('API response:', response.data);
-        // Let's just assume it has an "items" array
-        setItems(response.data.items);
-      })
-      .catch(error => {
-        console.error('API error:', error);
-      });
-  }, []);
-
   return (
-    <div>
-      <h1>My React + .NET Shop</h1>
-      <ul>
-        {items.map(item => (
-          <li key={item.itemId}>
-            {item.name} - ${item.price}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<ItemList />} />
+        <Route path="/items/:id" element={<ItemDetails />} />
+        {/* Add the Cart route */}
+        <Route path="/cart" element={<Cart />} />
+        {/* Add a simple Checkout route */}
+        <Route path="/checkout" element={<Checkout />} />
+      </Routes>
+    </Router>
   );
 }
 
