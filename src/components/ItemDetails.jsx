@@ -12,11 +12,8 @@ function ItemDetails() {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    // Example: GET /api/items/3 -> item with ID=3
     axios.get(`https://localhost:5079/api/items/${id}`)
       .then(response => {
-        // If your GET /api/items/{id} returns a single item object
-        // for example:  { "itemId": 3, "name": "Glitch Leo Beanie", ... }
         setItem(response.data);
         setLoading(false);
         if (response.data.sizes && response.data.sizes.length > 0) {
@@ -28,7 +25,7 @@ function ItemDetails() {
         setError('Could not fetch item details');
         setLoading(false);
       });
-  }, [id]);
+  }, [id]);  
 
   const handleSizeChange = (e) => {
     setSelectedSizeId(e.target.value);
@@ -47,16 +44,15 @@ function ItemDetails() {
       alert('Please select a size.');
       return;
     }
-
+  
     const payload = {
       itemId: item.itemId,
-      sizeId: parseInt(selectedSizeId, 10),  // parse if it's a string
+      sizeId: parseInt(selectedSizeId, 10),  // Ensure it's an integer
       quantity
     };
-
-    axios.post('http://localhost:5000/api/items/addToCart', payload)
+  
+    axios.post('https://localhost:5079/api/items/addToCart', payload)
       .then(response => {
-        // e.g. { Message: "Item added to cart successfully." }
         alert(response.data.message || 'Item added to cart!');
       })
       .catch(err => {
@@ -98,7 +94,7 @@ function ItemDetails() {
           <select
             id="sizeSelect"
             value={selectedSizeId}
-            onChange={handleSizeChange}
+            onChange={(e) => setSelectedSizeId(e.target.value)}
           >
             {item.sizes.map((sz) => (
               <option key={sz.sizeId} value={sz.sizeId}>
