@@ -3,37 +3,48 @@ import axios from 'axios';
 
 const API_BASE_URL = '/api';
 
-axios.defaults.withCredentials = true;
+// Create a dedicated Axios instance
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true, // This is applied to all requests using this instance.
+});
 
+// Add a response interceptor
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      console.error('Unauthorized! Please log in.');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Now export functions that use your custom instance.
 export const getItems = (categoryId = 0) => {
-  return axios.get(`${API_BASE_URL}/items`, {
-    params: { categoryId }
-  });
+  return api.get(`/items`, { params: { categoryId } });
 };
 
 export const getItemDetails = (id) => {
-  return axios.get(`${API_BASE_URL}/items/${id}`);
+  return api.get(`/items/${id}`);
 };
 
 export const addToCart = (itemId, sizeId, quantity) => {
-  return axios.post(`${API_BASE_URL}/items/addToCart`, {
-    itemId,
-    sizeId,
-    quantity
-  });
+  return api.post(`/items/addToCart`, { itemId, sizeId, quantity });
 };
 
-export const getCart = () => axios.get(`${API_BASE_URL}/Cart/Index`);
+export const getCart = () => api.get(`/Cart/Index`);
 
 export const removeFromCart = (itemId, sizeId) =>
-  axios.post(`${API_BASE_URL}/Cart/Remove`, { itemId, sizeId });
+  api.post(`/Cart/Remove`, { itemId, sizeId });
 
 export const updateCartQuantities = (cartViewModel) =>
-  axios.post(`${API_BASE_URL}/Cart/UpdateQuantities`, cartViewModel);
+  api.post(`/Cart/UpdateQuantities`, cartViewModel);
 
-// Optionally, if you want to get checkout details:
-export const getCheckout = () => axios.get(`${API_BASE_URL}/Cart/Checkout`);
+export const getCheckout = () => api.get(`/Cart/Checkout`);
 
-// And to post checkout details:
 export const postCheckout = (checkoutData) =>
-  axios.post(`${API_BASE_URL}/Cart/Checkout`, checkoutData);
+  api.post(`/Cart/Checkout`, checkoutData);
+
+export default api;

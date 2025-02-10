@@ -9,12 +9,7 @@ function CartPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // The cartData object is expected to have the following structure:
-  // {
-  //   cartItems: [ { itemId, sizeId, quantity }, ... ],
-  //   items: [ { itemId, name, price, ... }, ... ],
-  //   sizes: [ { sizeId, name, ... }, ... ]
-  // }
+  // Fetch the cart when the component mounts.
   useEffect(() => {
     fetchCart();
   }, []);
@@ -43,8 +38,8 @@ function CartPage() {
     }
   };
 
+  // Update the quantity in local state whenever the user modifies the input.
   const handleQuantityChange = (itemId, sizeId, newQuantity) => {
-    // Update the cartData state locally to reflect the changed quantity.
     const updatedCartData = { ...cartData };
     updatedCartData.cartItems = updatedCartData.cartItems.map((item) => {
       if (item.itemId === itemId && item.sizeId === sizeId) {
@@ -55,20 +50,20 @@ function CartPage() {
     setCartData(updatedCartData);
   };
 
-  const handleUpdateQuantities = async () => {
+  // When the user clicks checkout, update the quantities on the server then navigate.
+  const handleCheckout = async () => {
     try {
-      // The update endpoint expects a CartViewModel containing the CartItems array.
       await updateCartQuantities({ cartItems: cartData.cartItems });
-      fetchCart();
+      navigate("/checkout");
     } catch (err) {
       console.error('Error updating quantities:', err);
       setError('Error updating quantities.');
     }
   };
 
+  // Compute the total cost of items in the cart.
   const computeTotal = () => {
     if (!cartData) return 0;
-    // Sum up price * quantity for each cart item.
     return cartData.cartItems.reduce((sum, cartItem) => {
       const item = cartData.items.find(i => i.itemId === cartItem.itemId);
       return item ? sum + item.price * cartItem.quantity : sum;
@@ -98,9 +93,7 @@ function CartPage() {
             </thead>
             <tbody>
               {cartData.cartItems.map(cartItem => {
-                // Find the corresponding item details:
                 const item = cartData.items.find(i => i.itemId === cartItem.itemId);
-                // Find the corresponding size name:
                 const sizeObj = cartData.sizes && cartData.sizes.find(s => s.sizeId === cartItem.sizeId);
                 const sizeName = sizeObj ? sizeObj.name : '';
                 return (
@@ -135,8 +128,8 @@ function CartPage() {
           </table>
           <div className="cart-summary">
             <h2>Total: {computeTotal().toFixed(2)}€</h2>
-            <button onClick={handleUpdateQuantities}>Update Quantities</button>
-            <button onClick={() => navigate("/checkout")}>Checkout</button>
+            {/* The Update Quantities button has been removed */}
+            <button onClick={handleCheckout}>Checkout</button>
           </div>
         </div>
       )}
